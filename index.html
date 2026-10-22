@@ -1,0 +1,251 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>H.A Coaching Centre - Leave Apply</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #eef2ff;
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 20px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px #00000015;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .header h1 {
+      color: #3730a3;
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+
+    .header p {
+      color: #64748b;
+      margin: 0;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin: 16px 0 7px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #4f46e5;
+    }
+
+    textarea {
+      min-height: 95px;
+      resize: vertical;
+    }
+
+    .days-box {
+      margin-top: 16px;
+      padding: 13px;
+      background: #eef2ff;
+      border-radius: 8px;
+      font-weight: bold;
+      color: #3730a3;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 22px;
+      padding: 14px;
+      background: #16a34a;
+      color: white;
+      border: none;
+      border-radius: 9px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #15803d;
+    }
+
+    .footer {
+      text-align: center;
+      color: #64748b;
+      font-size: 12px;
+      margin-top: 18px;
+    }
+
+    
+.logo {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 15px;
+}
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <div class="header">
+        <img src="logo.jpg" alt="H.A Coaching Logo" class="logo">
+      <h1>H.A Coaching Centre </h1>
+      <p>Student Leave Application Form</p>
+    </div>
+
+    <form id="leaveForm">
+
+      <label for="studentName">Student Name *</label>
+      <input type="text" id="studentName"
+        placeholder="Enter your full name" required>
+
+      <label for="rollNo">Roll Number *</label>
+      <input type="text" id="rollNo"
+        placeholder="Enter your roll number" required>
+
+      <label for="startDate">Leave From Date *</label>
+      <input type="date" id="startDate" required>
+
+      <label for="endDate">Leave To Date *</label>
+      <input type="date" id="endDate" required>
+
+      <div class="days-box">
+        Total Leave Days: <span id="totalDays">0</span>
+      </div>
+
+      <label for="reason">Reason for Leave *</label>
+      <textarea id="reason"
+        placeholder="Why do you need leave?" required></textarea>
+
+      <button type="submit">
+        Send Leave on WhatsApp
+      </button>
+
+    </form>
+
+    <div class="footer">
+      H.A Coaching Centre | Leave Application
+    </div>
+
+  </div>
+
+  <script>
+    // WhatsApp number with country code 91
+    const WHATSAPP_NUMBER = "919639155834";
+
+    const startDate = document.getElementById("startDate");
+    const endDate = document.getElementById("endDate");
+    const totalDays = document.getElementById("totalDays");
+
+    function calculateDays() {
+      const start = startDate.value;
+      const end = endDate.value;
+
+      endDate.setCustomValidity("");
+
+      if (!start || !end) {
+        totalDays.textContent = "0";
+        return 0;
+      }
+
+      const first = new Date(start + "T00:00:00");
+      const last = new Date(end + "T00:00:00");
+
+      if (last < first) {
+        endDate.setCustomValidity(
+          "End date cannot be before start date."
+        );
+        totalDays.textContent = "Invalid dates";
+        return 0;
+      }
+
+      const days = Math.round(
+        (last - first) / (1000 * 60 * 60 * 24)
+      ) + 1;
+
+      totalDays.textContent = days;
+      return days;
+    }
+
+    startDate.addEventListener("change", () => {
+      endDate.min = startDate.value;
+      calculateDays();
+    });
+
+    endDate.addEventListener("change", calculateDays);
+
+    document.getElementById("leaveForm")
+      .addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const name = document.getElementById("studentName")
+          .value.trim();
+        const roll = document.getElementById("rollNo")
+          .value.trim();
+        const reason = document.getElementById("reason")
+          .value.trim();
+
+        const days = calculateDays();
+
+        if (!this.reportValidity() || days < 1) {
+          return;
+        }
+
+        if (!/^\d{10,15}$/.test(WHATSAPP_NUMBER)) {
+          alert("Please add a valid WhatsApp number in the code.");
+          return;
+        }
+
+        const message =
+`*H.A COACHING - LEAVE APPLICATION*
+
+Student Name: ${name}
+Roll Number: ${roll}
+Leave From: ${startDate.value}
+Leave To: ${endDate.value}
+Total Leave Days: ${days}
+
+Reason for Leave:
+${reason}
+
+Please review my leave application.
+Thank you.`;
+
+        const url =
+          "https://wa.me/" + WHATSAPP_NUMBER +
+          "?text=" + encodeURIComponent(message);
+
+        window.open(url, "_blank");
+      });
+  </script>
+</body>
+</html>
